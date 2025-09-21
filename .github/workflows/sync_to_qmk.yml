@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'qmk/dosboards/**'
 
 jobs:
   split:
