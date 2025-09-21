@@ -1,0 +1,23 @@
+name: Sync master → qmk
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Subtree split
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git subtree split --prefix=qmk/dosboards -b qmk-tmp
+          git push origin qmk-tmp:qmk --force
