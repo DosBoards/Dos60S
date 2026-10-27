@@ -38,6 +38,16 @@ jobs:
           repository: getreuer/qmk-modules
           path: qmk_firmware/modules/getreuer
 
+      # Layer/toggle reporting for the which_layer overlay. The module is the
+      # qmk_module folder of that repo, pinned to a release.
+      - name: Checkout which_layer module
+        uses: actions/checkout@v7
+        with:
+          repository: BrandonDoster/which_layer
+          ref: v1.1.0
+          path: which_layer
+          sparse-checkout: qmk_module
+
       - name: Install dependencies
         run: pip3 install -r qmk_firmware/requirements.txt
 
@@ -45,6 +55,7 @@ jobs:
         working-directory: qmk_firmware
         run: |
           cp -r ../dos60s/QMK/dosboards keyboards/dosboards
+          cp -r ../which_layer/qmk_module modules/brandondoster
           qmk compile -kb dosboards/dos60s -km default
           mv dosboards_dos60s_default.hex "../dos60s_${GITHUB_REF_NAME}.hex"
 

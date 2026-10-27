@@ -17,10 +17,14 @@ The QMK keyboard definition lives in `QMK/dosboards`. It gets symlinked into a l
     qmk setup
     ```
 
-3. Add the community modules (the default keymap uses `getreuer/socd_cleaner`):
+3. Add the community modules: the default keymap uses `getreuer/socd_cleaner`, and
+   `brandondoster/which_layer` to report layers and toggles to the
+   [which_layer](https://github.com/BrandonDoster/which_layer) overlay:
 
     ```sh
     git clone https://github.com/getreuer/qmk-modules.git ~/qmk_firmware/modules/getreuer
+    git clone https://github.com/BrandonDoster/which_layer.git ~/which_layer
+    ln -s ~/which_layer/qmk_module ~/qmk_firmware/modules/brandondoster
     ```
 
 4. Symlink this repo's keyboard folder into QMK (run from the root of this repo):
