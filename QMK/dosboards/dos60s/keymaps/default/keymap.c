@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "raw_hid.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
@@ -32,8 +33,6 @@ socd_cleaner_t socd_opposing_pairs[] = {
 
 // Layer state over raw HID for the which_layer overlay
 // (https://github.com/BrandonDoster/which_layer).
-#include "raw_hid.h"
-
 #define WL_REPORT_SIZE 32 // QMK raw HID report size
 #define WL_MAGIC 0xAA
 #define WL_LAYER_STATE 0x01

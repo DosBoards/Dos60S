@@ -1,0 +1,78 @@
+name: Build firmware
+
+# Tag a release (e.g. v1.0.0) to build the firmware and attach the .hex to a
+# GitHub release. Run manually to build without releasing.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+
+    steps:
+      - name: Disable safe.directory check
+        run: git config --global --add safe.directory '*'
+
+      - name: Checkout Dos60S
+        uses: actions/checkout@v7
+        with:
+          path: dos60s
+
+      - name: Checkout QMK Firmware
+        uses: actions/checkout@v7
+        with:
+          repository: qmk/qmk_firmware
+          path: qmk_firmware
+          submodules: recursive
+
+      - name: Checkout community modules
+        uses: actions/checkout@v7
+        with:
+          repository: getreuer/qmk-modules
+          path: qmk_firmware/modules/getreuer
+
+      - name: Install dependencies
+        run: pip3 install -r qmk_firmware/requirements.txt
+
+      - name: Compile
+        working-directory: qmk_firmware
+        run: |
+          cp -r ../dos60s/QMK/dosboards keyboards/dosboards
+          qmk compile -kb dosboards/dos60s -km default
+          mv dosboards_dos60s_default.hex "../dos60s_${GITHUB_REF_NAME}.hex"
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v7
+        with:
+          name: dos60s-firmware
+          path: dos60s_*.hex
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download firmware
+        uses: actions/download-artifact@v8
+        with:
+          name: dos60s-firmware
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        # Attach to an existing release if one was already made for this tag.
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dos60s_*.hex --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dos60s_*.hex --title "$GITHUB_REF_NAME" --generate-notes
+          fi
