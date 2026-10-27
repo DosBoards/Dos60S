@@ -1,8 +1,3 @@
 {
-  "modules": ["getreuer/socd_cleaner"],
-  "config": {
-    "features": {
-      "raw": true
-    }
-  }
+  "modules": ["getreuer/socd_cleaner", "brandondoster/which_layer"]
 }

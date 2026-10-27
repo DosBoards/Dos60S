@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "raw_hid.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
@@ -30,28 +29,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 socd_cleaner_t socd_opposing_pairs[] = {
     {{KC_A, KC_D}, SOCD_CLEANER_LAST},
 };
-
-// Layer state over raw HID for the which_layer overlay
-// (https://github.com/BrandonDoster/which_layer).
-#define WL_REPORT_SIZE 32 // QMK raw HID report size
-#define WL_MAGIC 0xAA
-#define WL_LAYER_STATE 0x01
-
-static void wl_send_layer_state(layer_state_t state) {
-    uint8_t  report[WL_REPORT_SIZE] = {WL_MAGIC, WL_LAYER_STATE};
-    uint32_t s                      = state;
-    memcpy(&report[2], &s, sizeof(s));
-    raw_hid_send(report, sizeof(report));
-}
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    wl_send_layer_state(state);
-    return state;
-}
-
-// The overlay asks for the current state when it connects.
-void raw_hid_receive(uint8_t *data, uint8_t length) {
-    if (length >= 2 && data[0] == WL_MAGIC && data[1] == WL_LAYER_STATE) {
-        wl_send_layer_state(layer_state);
-    }
-}
